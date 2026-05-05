@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Saiko — Content Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f6f3;
+  --bg2: #ffffff;
+  --bg3: #f0ede8;
+  --border: #e8e4de;
+  --border2: #d6d0c8;
+  --text: #1a1816;
+  --text2: #6b6560;
+  --text3: #a8a29c;
+  --green: #2d6a4f;
+  --green-bg: #eef6f1;
+  --green-border: #b7deca;
+  --blue: #1a4a7a;
+  --blue-bg: #edf3fa;
+  --blue-border: #b3cde8;
+  --amber: #92500a;
+  --amber-bg: #fdf3e7;
+  --amber-border: #f0c990;
+  --coral: #8b2e22;
+  --coral-bg: #fdf0ee;
+  --coral-border: #e8b5ae;
+  --purple: #4a2d7a;
+  --purple-bg: #f3effe;
+  --purple-border: #c9b8ee;
+  --accent: #2d6a4f;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.1), 0 1px 4px rgba(0,0,0,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 400; line-height: 1.6; min-height: 100vh; }
+
+/* LOGIN */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f7f6f3 0%, #eef6f1 50%, #f0ede8 100%);
+  padding: 2rem;
+}
+.login-card {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem 2.5rem;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+}
+.login-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--green);
+  text-align: center;
+  margin-bottom: 4px;
+  letter-spacing: 0.06em;
+}
+.login-tagline { text-align: center; font-size: 12px; color: var(--text3); margin-bottom: 2.5rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.form-group { margin-bottom: 1.25rem; }
+.form-label { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 6px; display: block; letter-spacing: 0.04em; text-transform: uppercase; }
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  background: var(--bg);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+}
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(45,106,79,0.1); }
+.login-btn {
+  width: 100%;
+  padding: 13px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s, transform 0.1s;
+  letter-spacing: 0.02em;
+}
+.login-btn:hover { background: #245a42; }
+.login-btn:active { transform: scale(0.99); }
+.login-error { background: var(--coral-bg); border: 1px solid var(--coral-border); color: var(--coral); font-size: 13px; padding: 10px 14px; border-radius: 8px; margin-bottom: 1rem; display: none; }
+.login-hint { text-align: center; font-size: 12px; color: var(--text3); margin-top: 1.5rem; }
+.login-hint strong { color: var(--text2); }
+
+/* APP */
+#app { display: none; min-height: 100vh; }
+
+/* SIDEBAR */
+.layout { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 240px;
+  background: white;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 50;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 1.5rem 1.5rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo-text { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--green); letter-spacing: 0.06em; }
+.sidebar-logo-sub { font-size: 11px; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px; }
+.sidebar-nav { padding: 1rem 0.75rem; flex: 1; }
+.nav-section-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; padding: 0.5rem 0.75rem; margin-top: 0.5rem; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+  text-decoration: none;
+}
+.nav-item:hover { background: var(--bg3); color: var(--text); }
+.nav-item.active { background: var(--green-bg); color: var(--green); font-weight: 500; }
+.nav-icon { font-size: 16px; width: 20px; text-align: center; }
+.sidebar-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); }
+.sidebar-user { display: flex; align-items: center; gap: 10px; }
+.user-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--green-bg); border: 1.5px solid var(--green-border); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--green); }
+.user-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.user-role { font-size: 11px; color: var(--text3); }
+.logout-btn { font-size: 12px; color: var(--text3); cursor: pointer; margin-top: 8px; display: block; transition: color 0.2s; }
+.logout-btn:hover { color: var(--coral); }
+
+/* MAIN */
+.main { margin-left: 240px; flex: 1; padding: 2rem; max-width: calc(100% - 240px); }
+.page { display: none; }
+.page.active { display: block; }
+.page-header { margin-bottom: 2rem; }
+.page-title { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+.page-sub { font-size: 14px; color: var(--text2); }
+
+/* CARDS */
+.card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; box-shadow: var(--shadow); }
+.card-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 1rem; letter-spacing: 0.02em; text-transform: uppercase; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+.stat-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; box-shadow: var(--shadow); }
+.stat-num { font-family: 'Playfair Display', serif; font-size: 32px; font-weight: 600; color: var(--text); line-height: 1; margin-bottom: 4px; }
+.stat-label { font-size: 12px; color: var(--text3); font-weight: 500; letter-spacing: 0.04em; text-transform: uppercase; }
+.stat-badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 20px; margin-top: 8px; font-weight: 500; }
+
+/* TAGS */
+.tag { display: inline-flex; align-items: center; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.02em; }
+.tag-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.tag-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.tag-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.tag-coral { background: var(--coral-bg); color: var(--coral); border: 1px solid var(--coral-border); }
+.tag-purple { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-border); }
+
+/* FOUNDERS */
+.founders-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+.founder-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; box-shadow: var(--shadow); }
+.founder-card.rahul { border-top: 3px solid var(--green); }
+.founder-card.mama { border-top: 3px solid var(--blue); }
+.founder-top { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+.f-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 600; flex-shrink: 0; }
+.ra { background: var(--green-bg); color: var(--green); border: 1.5px solid var(--green-border); }
+.ma { background: var(--blue-bg); color: var(--blue); border: 1.5px solid var(--blue-border); }
+.f-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 500; }
+.f-role { font-size: 12px; color: var(--text3); margin-top: 1px; }
+.f-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 1rem; }
+.f-row { display: flex; justify-content: space-between; padding: 7px 0; border-top: 1px solid var(--border); font-size: 13px; }
+.f-row-label { color: var(--text3); }
+.f-row-val { color: var(--text); font-weight: 500; text-align: right; max-width: 55%; }
+.bio-display { background: var(--bg); border-radius: 8px; padding: 12px 14px; margin-top: 1rem; font-size: 12.5px; color: var(--text2); line-height: 1.8; font-style: italic; border: 1px solid var(--border); }
+
+/* PILLARS */
+.pillars-section { margin-bottom: 1.5rem; }
+.pillars-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.pillar-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem; box-shadow: var(--shadow); transition: box-shadow 0.2s; }
+.pillar-card:hover { box-shadow: var(--shadow-lg); }
+.p-icon { font-size: 20px; margin-bottom: 8px; }
+.p-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.p-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+
+/* SERIES */
+.ep-list { display: flex; flex-direction: column; gap: 10px; }
+.ep-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 1.15rem 1.25rem; box-shadow: var(--shadow); display: grid; grid-template-columns: 64px 1fr auto; gap: 1rem; align-items: start; }
+.ep-num { font-family: 'Playfair Display', serif; font-size: 24px; font-weight: 600; color: var(--text3); line-height: 1; padding-top: 2px; }
+.ep-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; line-height: 1.4; }
+.ep-hook { font-size: 12px; color: var(--text2); line-height: 1.5; font-style: italic; margin-bottom: 6px; }
+.ep-lesson { font-size: 11px; color: var(--text3); line-height: 1.5; }
+.ep-who { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+
+/* CALENDAR */
+.week-block { margin-bottom: 2rem; }
+.week-header-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.week-pill { font-size: 12px; font-weight: 600; padding: 4px 14px; border-radius: 20px; letter-spacing: 0.04em; }
+.w1 { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.w2 { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.w3 { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.w4 { background: var(--coral-bg); color: var(--coral); border: 1px solid var(--coral-border); }
+.week-theme-text { font-size: 13px; color: var(--text2); }
+.cal-7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.cal-day { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 10px 8px; min-height: 110px; box-shadow: var(--shadow); }
+.cal-day.rest { opacity: 0.5; }
+.cal-day.launch-day { border-color: var(--green-border); background: var(--green-bg); }
+.cal-day-name { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.cal-day.launch-day .cal-day-name { color: var(--green); }
+.cal-pill { font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: 20px; display: inline-block; margin-bottom: 5px; letter-spacing: 0.02em; }
+.cp-r { background: var(--green-bg); color: var(--green); }
+.cp-m { background: var(--blue-bg); color: var(--blue); }
+.cp-c { background: var(--purple-bg); color: var(--purple); }
+.cp-rest { background: var(--bg3); color: var(--text3); }
+.cal-text { font-size: 10px; color: var(--text2); line-height: 1.4; }
+
+/* AI GENERATOR */
+.ai-section { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+.ai-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.ai-sub { font-size: 13px; color: var(--text2); margin-bottom: 1.25rem; }
+.ai-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1rem; }
+.ai-select { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; width: 100%; transition: border-color 0.2s; cursor: pointer; }
+.ai-select:focus { border-color: var(--accent); }
+.ai-input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; resize: vertical; min-height: 80px; transition: border-color 0.2s; }
+.ai-input:focus { border-color: var(--accent); }
+.ai-btn { padding: 11px 24px; background: var(--green); color: white; border: none; border-radius: 9px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; }
+.ai-btn:hover { background: #245a42; }
+.ai-btn:disabled { background: var(--text3); cursor: not-allowed; }
+.ai-output { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-top: 1rem; font-size: 14px; color: var(--text); line-height: 1.8; white-space: pre-wrap; display: none; min-height: 120px; }
+.ai-output.visible { display: block; }
+.copy-btn { font-size: 12px; color: var(--accent); cursor: pointer; border: 1px solid var(--green-border); background: var(--green-bg); padding: 4px 12px; border-radius: 6px; margin-top: 8px; display: inline-block; transition: background 0.2s; }
+.copy-btn:hover { background: var(--green-border); }
+
+/* RULES */
+.rules-list { display: flex; flex-direction: column; }
+.rule-row { display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+.rule-row:last-child { border-bottom: none; }
+.rule-num { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 600; color: var(--border2); min-width: 32px; line-height: 1; }
+.rule-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.rule-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.caption-box { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; font-size: 13px; color: var(--text2); line-height: 1.9; margin-top: 1rem; }
+.caption-box .ca { color: var(--accent); font-weight: 500; }
+
+/* EDIT MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 200; display: none; align-items: center; justify-content: center; padding: 2rem; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 16px; padding: 2rem; width: 100%; max-width: 560px; box-shadow: var(--shadow-lg); max-height: 85vh; overflow-y: auto; }
+.modal-title { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 500; margin-bottom: 1.25rem; color: var(--text); }
+.modal-field { margin-bottom: 1rem; }
+.modal-label { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: 0.04em; }
+.modal-input { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; transition: border-color 0.2s; }
+.modal-input:focus { border-color: var(--accent); }
+.modal-textarea { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-family: 'Outfit', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; resize: vertical; min-height: 100px; transition: border-color 0.2s; }
+.modal-textarea:focus { border-color: var(--accent); }
+.modal-btns { display: flex; gap: 10px; margin-top: 1.25rem; }
+.btn-save { padding: 10px 22px; background: var(--green); color: white; border: none; border-radius: 9px; font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+.btn-save:hover { background: #245a42; }
+.btn-cancel { padding: 10px 22px; background: var(--bg3); color: var(--text2); border: 1px solid var(--border); border-radius: 9px; font-family: 'Outfit', sans-serif; font-size: 14px; cursor: pointer; transition: background 0.2s; }
+.btn-cancel:hover { background: var(--border); }
+.edit-btn { font-size: 11px; color: var(--accent); cursor: pointer; border: 1px solid var(--green-border); background: var(--green-bg); padding: 3px 10px; border-radius: 6px; transition: background 0.2s; white-space: nowrap; }
+.edit-btn:hover { background: var(--green-border); }
+
+/* LOADING */
+.loading-dots { display: inline-flex; gap: 4px; align-items: center; }
+.loading-dots span { width: 6px; height: 6px; border-radius: 50%; background: white; animation: bounce 1.2s infinite; }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+
+/* RESPONSIVE */
+@media(max-width:768px) {
+  .sidebar { transform: translateX(-100%); }
+  .main { margin-left: 0; max-width: 100%; padding: 1rem; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .founders-grid { grid-template-columns: 1fr; }
+  .pillars-grid { grid-template-columns: 1fr 1fr; }
+  .cal-7 { grid-template-columns: repeat(4, 1fr); }
+  .ep-card { grid-template-columns: 48px 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">SAIKO</div>
+    <div class="login-tagline">Founder Content Planner</div>
+    <div class="login-error" id="login-error">Incorrect username or password.</div>
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input class="form-input" type="text" id="username" placeholder="Enter username" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="password" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-hint">
+      Rahul: <strong>rahul / saiko2025</strong><br>
+      Mama: <strong>mama / saiko2025</strong>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <div class="sidebar-logo-text">SAIKO</div>
+        <div class="sidebar-logo-sub">Content Planner</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-section-label">Overview</div>
+        <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+          <span class="nav-icon">📊</span> Dashboard
+        </div>
+        <div class="nav-section-label">Founders</div>
+        <div class="nav-item" onclick="showPage('founders')" id="nav-founders">
+          <span class="nav-icon">👥</span> Both Founders
+        </div>
+        <div class="nav-item" onclick="showPage('pillars')" id="nav-pillars">
+          <span class="nav-icon">🎯</span> Content Pillars
+        </div>
+        <div class="nav-section-label">Content</div>
+        <div class="nav-item" onclick="showPage('series')" id="nav-series">
+          <span class="nav-icon">🎬</span> Series Episodes
+        </div>
+        <div class="nav-item" onclick="showPage('calendar')" id="nav-calendar">
+          <span class="nav-icon">📅</span> 4-Week Calendar
+        </div>
+        <div class="nav-section-label">Tools</div>
+        <div class="nav-item" onclick="showPage('ai')" id="nav-ai">
+          <span class="nav-icon">✨</span> AI Script Writer
+        </div>
+        <div class="nav-item" onclick="showPage('rules')" id="nav-rules">
+          <span class="nav-icon">📋</span> Golden Rules
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <div class="sidebar-user">
+          <div class="user-avatar" id="user-avatar">R</div>
+          <div>
+            <div class="user-name" id="user-name">Rahul</div>
+            <div class="user-role">Co-founder, Saiko</div>
+          </div>
+        </div>
+        <span class="logout-btn" onclick="doLogout()">← Sign out</span>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Saiko founder branding — 4-week launch plan overview</div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-num">32</div>
+            <div class="stat-label">Total Reels</div>
+            <span class="stat-badge tag-green">4 weeks</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">8</div>
+            <div class="stat-label">Series Episodes</div>
+            <span class="stat-badge tag-purple">Saiko Se Pehle</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">12</div>
+            <div class="stat-label">Rahul Personal</div>
+            <span class="stat-badge tag-green">Science + Life</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">12</div>
+            <div class="stat-label">Mama Personal</div>
+            <span class="stat-badge tag-blue">Ops + Founder</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem;">
+          <div class="card">
+            <div class="card-title">Positioning</div>
+            <div style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:10px;">Two founders. One brand. Built from real loss, real struggle, real science.</div>
+            <div style="font-size:13px;color:var(--text);font-style:italic;border-left:3px solid var(--green);padding-left:12px;line-height:1.6;">"Skin that shows up. Just like you."</div>
+          </div>
+          <div class="card">
+            <div class="card-title">Launch Timeline</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text2);">Week 1</span><span style="color:var(--text);font-weight:500;">Introduce founders</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text2);">Week 2</span><span style="color:var(--text);font-weight:500;">Build authority</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid var(--border);"><span style="color:var(--text2);">Week 3</span><span style="color:var(--text);font-weight:500;">Product teaser</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;"><span style="color:var(--text2);">Week 4 Fri</span><span class="tag tag-green">🚀 LAUNCH DAY</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Series — Saiko Se Pehle</div>
+          <div style="font-size:14px;color:var(--text2);line-height:1.7;">Ek brand banane ki real, unfiltered kahani. 8 episodes. Reel + YT Shorts. 45–90 seconds each. Documentary-style, no scripts — real story, real mistakes, real wins.</div>
+        </div>
+      </div>
+
+      <!-- FOUNDERS -->
+      <div class="page" id="page-founders">
+        <div class="page-header">
+          <div class="page-title">Both Founders</div>
+          <div class="page-sub">Identity, positioning, and Instagram bios</div>
+        </div>
+        <div class="founders-grid">
+          <div class="founder-card rahul">
+            <div class="founder-top">
+              <div class="f-avatar ra">R</div>
+              <div>
+                <div class="f-name">Rahul</div>
+                <div class="f-role">The Builder · Visionary</div>
+              </div>
+            </div>
+            <div class="f-tags">
+              <span class="tag tag-green">BSc Chemistry</span>
+              <span class="tag tag-coral">Formulator</span>
+              <span class="tag tag-amber">Gen Z Voice</span>
+            </div>
+            <div class="f-row"><span class="f-row-label">Audience</span><span class="f-row-val">Gen Z, 18–28</span></div>
+            <div class="f-row"><span class="f-row-label">Tone</span><span class="f-row-val">Raw, Hinglish, Real</span></div>
+            <div class="f-row"><span class="f-row-label">Superpower</span><span class="f-row-val">Science simple mein + emotional journey</span></div>
+            <div class="f-row"><span class="f-row-label">Platforms</span><span class="f-row-val">Instagram + YouTube</span></div>
+            <div class="bio-display" id="rahul-bio">BSc Chemistry → Built India's men's skincare brand 🧪<br>Oily skin? Acne? Main samjhunga.<br>Co-founder @saiko.official<br>Building in public — real talk, no filter</div>
+            <div style="margin-top:8px;display:flex;justify-content:flex-end;"><span class="edit-btn" onclick="openEdit('rahul-bio','Rahul Instagram Bio')">Edit Bio</span></div>
+          </div>
+          <div class="founder-card mama">
+            <div class="founder-top">
+              <div class="f-avatar ma">M</div>
+              <div>
+                <div class="f-name">Mama</div>
+                <div class="f-role">The Operator · Strategist</div>
+              </div>
+            </div>
+            <div class="f-tags">
+              <span class="tag tag-blue">Mech Engineer</span>
+              <span class="tag tag-purple">MNC R&D</span>
+              <span class="tag tag-green">Operator</span>
+            </div>
+            <div class="f-row"><span class="f-row-label">Audience</span><span class="f-row-val">25–35 Young Professionals</span></div>
+            <div class="f-row"><span class="f-row-label">Tone</span><span class="f-row-val">Calm, Structured, Experienced</span></div>
+            <div class="f-row"><span class="f-row-label">Superpower</span><span class="f-row-val">Ops mindset + engineer who pivoted</span></div>
+            <div class="f-row"><span class="f-row-label">Platforms</span><span class="f-row-val">Instagram + YouTube</span></div>
+            <div class="bio-display" id="mama-bio">Mech Engineer → D2C Entrepreneur 🔩<br>Andaman to Ahmedabad. MNC to founder.<br>Co-founder @saiko.official<br>Helping 25–35 yr olds build something real</div>
+            <div style="margin-top:8px;display:flex;justify-content:flex-end;"><span class="edit-btn" onclick="openEdit('mama-bio','Mama Instagram Bio')">Edit Bio</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Collaboration Strategy</div>
+          <div style="display:flex;flex-direction:column;gap:0;">
+            <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+              <span class="tag tag-purple">Series</span>
+              <div><div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px;">"Building Saiko" — weekly reel/YouTube series</div><div style="font-size:12px;color:var(--text2);">Rahul explains product side, Mama explains business side. 2 perspectives, 1 brand. Audiences merge naturally.</div></div>
+            </div>
+            <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start;">
+              <span class="tag tag-purple">Monthly</span>
+              <div><div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px;">State of Saiko — monthly update together</div><div style="font-size:12px;color:var(--text2);">Orders, what worked, what failed, next 30 days plan. Real numbers if possible. Builds massive trust.</div></div>
+            </div>
+            <div style="display:flex;gap:12px;padding:12px 0;align-items:flex-start;">
+              <span class="tag tag-purple">Hook</span>
+              <div><div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px;">Origin reel together — 60–90 sec, emotional</div><div style="font-size:12px;color:var(--text2);">"Ek ne formula banaya, ek ne factory deal ki. Dono ne sab kuchh khoya pehle." This one video can go viral.</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PILLARS -->
+      <div class="page" id="page-pillars">
+        <div class="page-header">
+          <div class="page-title">Content Pillars</div>
+          <div class="page-sub">What to post — separated by founder</div>
+        </div>
+        <div class="pillars-section">
+          <div class="pillars-header">
+            <div style="font-size:13px;font-weight:600;color:var(--green);letter-spacing:0.04em;text-transform:uppercase;">— Rahul's Pillars</div>
+          </div>
+          <div class="pillars-grid">
+            <div class="pillar-card"><div class="p-icon">🧪</div><div class="p-title">Science → Simple</div><div class="p-desc">Chemistry decoded in 30 sec. "Yeh ingredient kya karta hai actually?" BSc = unfair advantage no one can copy.</div></div>
+            <div class="pillar-card"><div class="p-icon">🏗</div><div class="p-title">Founder's Real Life</div><div class="p-desc">Build in public. Failures, wins, factory visits, formula updates. No polish — only truth. Real visuals only.</div></div>
+            <div class="pillar-card"><div class="p-icon">💪</div><div class="p-title">Men + Self-Improvement</div><div class="p-desc">Skin as discipline. Morning routine as identity. Not beauty — performance. Gen Z wants this framing.</div></div>
+            <div class="pillar-card"><div class="p-icon">❤️</div><div class="p-title">Motivation from Pain</div><div class="p-desc">Papa ki story. Jo hua. Jo seekha. Gen Z connect karega — real grief, real comeback. No one fakes this.</div></div>
+            <div class="pillar-card"><div class="p-icon">🇮🇳</div><div class="p-title">India-First Formula</div><div class="p-desc">Why imported formulas fail Indian skin. Climate, humidity, diet. Built here, not adapted. Your brand moat.</div></div>
+            <div class="pillar-card"><div class="p-icon">🔬</div><div class="p-title">Industry Takedowns</div><div class="p-desc">Call out BS marketing. Overpriced ingredients. Feminine packaging pushed on men. Confident defiance = shares.</div></div>
+          </div>
+        </div>
+        <div class="pillars-section">
+          <div class="pillars-header">
+            <div style="font-size:13px;font-weight:600;color:var(--blue);letter-spacing:0.04em;text-transform:uppercase;">— Mama's Pillars</div>
+          </div>
+          <div class="pillars-grid">
+            <div class="pillar-card"><div class="p-icon">🔩</div><div class="p-title">Engineer → Founder</div><div class="p-desc">"Job chhodi toh kya hua" — career pivot story. MNC to startup. Andaman to Ahmedabad. 25–35 will relate hard.</div></div>
+            <div class="pillar-card"><div class="p-icon">📦</div><div class="p-title">D2C Operations</div><div class="p-desc">Packaging, distributors, raw materials, vendor management. Behind-the-scenes business building no one shows.</div></div>
+            <div class="pillar-card"><div class="p-icon">📋</div><div class="p-title">Business for Beginners</div><div class="p-desc">Documents, financial sheets, MOQ negotiation — practical gyaan from MNC experience applied to startup life.</div></div>
+            <div class="pillar-card"><div class="p-icon">🔄</div><div class="p-title">Comeback Story</div><div class="p-desc">Fresh start after setback. Vulnerability builds deep loyalty. 25–35 audience has felt this. They'll follow for this.</div></div>
+            <div class="pillar-card"><div class="p-icon">🤝</div><div class="p-title">Team Building</div><div class="p-desc">Finding formulator, manufacturer, agency from zero connections. How to build a team when you know nobody.</div></div>
+            <div class="pillar-card"><div class="p-icon">📊</div><div class="p-title">Numbers & Reality</div><div class="p-desc">Real D2C costs, MOQ reality, margins. No sugar-coating. This is what people actually search for and save.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SERIES -->
+      <div class="page" id="page-series">
+        <div class="page-header">
+          <div class="page-title">Saiko Se Pehle</div>
+          <div class="page-sub">8-episode documentary series — Reels + YT Shorts, 45–90 sec each</div>
+        </div>
+        <div class="ep-list" id="ep-list">
+          <!-- Episodes rendered by JS -->
+        </div>
+      </div>
+
+      <!-- CALENDAR -->
+      <div class="page" id="page-calendar">
+        <div class="page-header">
+          <div class="page-title">4-Week Calendar</div>
+          <div class="page-sub">Day-by-day content plan aligned to launch day</div>
+        </div>
+        <div id="cal-container"><!-- rendered by JS --></div>
+        <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:12px;padding:1.5rem;text-align:center;margin-top:1rem;">
+          <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:500;color:var(--green);margin-bottom:6px;">Launch Day = Week 4, Friday</div>
+          <div style="font-size:13px;color:var(--text2);max-width:500px;margin:0 auto;line-height:1.7;">EP 08 + product reveal + website live — teen cheezein ek din mein. Week 3 tak audience itni connected hogi ki launch pe organic reach aayegi bina paid ads ke.</div>
+        </div>
+      </div>
+
+      <!-- AI SCRIPT WRITER -->
+      <div class="page" id="page-ai">
+        <div class="page-header">
+          <div class="page-title">AI Script Writer</div>
+          <div class="page-sub">Generate Hinglish reel scripts, captions, and content ideas instantly</div>
+        </div>
+        <div class="ai-section">
+          <div class="ai-title">✨ Generate Content with AI</div>
+          <div class="ai-sub">Choose what you want to create, add context, and get a ready-to-use script.</div>
+          <div class="ai-options">
+            <select class="ai-select" id="content-type">
+              <option value="">Select content type...</option>
+              <option value="reel-script">Reel Script (Hinglish)</option>
+              <option value="episode-script">Series Episode Script</option>
+              <option value="caption">Instagram Caption + Hashtags</option>
+              <option value="content-ideas">Content Ideas (10 ideas)</option>
+              <option value="hook">Opening Hook Lines (5 options)</option>
+              <option value="youtube-desc">YouTube Description</option>
+            </select>
+            <select class="ai-select" id="founder-select">
+              <option value="rahul">Rahul (Gen Z, Hinglish, Science)</option>
+              <option value="mama">Mama (25–35, Ops, Comeback)</option>
+              <option value="both">Both (Collab content)</option>
+            </select>
+          </div>
+          <textarea class="ai-input" id="ai-context" placeholder="Describe what this content is about... e.g. 'EP 04 — trademark mistake, UNIGLO fail, lesson for founders' or 'oily skin tip about rebound oil trap'"></textarea>
+          <button class="ai-btn" id="ai-btn" onclick="generateContent()">
+            <span id="ai-btn-text">Generate ✨</span>
+          </button>
+          <div class="ai-output" id="ai-output"></div>
+          <div id="copy-row" style="display:none;"><span class="copy-btn" onclick="copyOutput()">Copy to clipboard</span></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Quick Generate</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <span class="edit-btn" style="cursor:pointer;" onclick="quickGen('EP 01 origin story reel script — graduation, mama quits job, restaurant idea, Papa ka quote changes everything','reel-script','both')">EP 01 Script</span>
+            <span class="edit-btn" style="cursor:pointer;" onclick="quickGen('EP 04 trademark mistake — UNIGLO fail, logo wasted, lesson for every founder: trademark pehle karo','reel-script','rahul')">EP 04 Script</span>
+            <span class="edit-btn" style="cursor:pointer;" onclick="quickGen('EP 08 launch day — 2 saal, ek loss, ek restart, aaj Saiko launch ho raha hai. Product reveal. Emotional ending.','reel-script','both')">EP 08 Launch Script</span>
+            <span class="edit-btn" style="cursor:pointer;" onclick="quickGen('Rahul day in life as founder — 30 days before launch, formula testing, social media work, real moments','reel-script','rahul')">Day in Life Script</span>
+            <span class="edit-btn" style="cursor:pointer;" onclick="quickGen('Oily skin tip — rebound oil trap, harsh facewash triggers more sebum, switch to gentle cleanser','reel-script','rahul')">Oily Skin Tip</span>
+            <span class="edit-btn" style="cursor:pointer;" onclick="quickGen('Mama engineer to entrepreneur story — MNC job to D2C startup, what changed, what stayed same','reel-script','mama')">Mama Origin Reel</span>
+            <span class="edit-btn" style="cursor:pointer;" onclick="quickGen('30 content ideas for Saiko founders — mix of science tips, build in public, motivation, India-first skincare','content-ideas','both')">30 Content Ideas</span>
+            <span class="edit-btn" style="cursor:pointer;" onclick="quickGen('All 8 episode captions for Saiko Se Pehle series with hashtags','caption','both')">All Captions</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RULES -->
+      <div class="page" id="page-rules">
+        <div class="page-header">
+          <div class="page-title">Golden Rules</div>
+          <div class="page-sub">Non-negotiable — follow these every single post</div>
+        </div>
+        <div class="card" style="margin-bottom:1.5rem;">
+          <div class="rules-list">
+            <div class="rule-row"><div class="rule-num">01</div><div><div class="rule-title">Har episode ek cliffhanger pe khatam ho</div><div class="rule-desc">"Agle episode mein batayenge kya hua" — audience ko reason do wapas aane ka. Without this, series nahi chalegi. Ending = hook for next episode.</div></div></div>
+            <div class="rule-row"><div class="rule-num">02</div><div><div class="rule-title">Hook pehle 3 seconds mein</div><div class="rule-desc">Mistake, surprise, ya question — scroll rokne wala kuch. "Hamara naam almost UNIGLO tha" beats "Aaj mein bataunga branding ke baare mein" every time.</div></div></div>
+            <div class="rule-row"><div class="rule-num">03</div><div><div class="rule-title">Har episode mein ek actionable lesson</div><div class="rule-desc">Viewer sirf story nahi — kuch seekhna chahta hai. "Trademark pehle" jaise takeaways save aur share hote hain. Yeh aapki reach organically badhata hai.</div></div></div>
+            <div class="rule-row"><div class="rule-num">04</div><div><div class="rule-title">Real visuals only — no stock footage</div><div class="rule-desc">Actual WhatsApp screenshots, real logos, factory photos, notebook pages. Authenticity hi aapka biggest edge hai over polished brands with big budgets.</div></div></div>
+            <div class="rule-row"><div class="rule-num">05</div><div><div class="rule-title">Caption mein episode number daalo</div><div class="rule-desc">"Saiko Se Pehle — EP 03" — audience series track karti hai, profile pe aati hai baaki episodes ke liye. Yeh aapka retention mechanism hai.</div></div></div>
+            <div class="rule-row"><div class="rule-num">06</div><div><div class="rule-title">Sunday batch shoot karo</div><div class="rule-desc">Poore week ke 4–5 reels ek din mein. Outfit change karo episodes ke liye. Same location chalega. Yeh consistency ensure karta hai when launch pressure hits.</div></div></div>
+            <div class="rule-row"><div class="rule-num">07</div><div><div class="rule-title">Subtitles — mandatory, no exceptions</div><div class="rule-desc">70% log bina sound ke dekhte hain Instagram pe. CapCut auto-subtitle — 2 minutes. Without subtitles, 70% audience miss ho rahi hai. Non-negotiable.</div></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Caption Template — Copy Karo</div>
+          <div class="caption-box">
+            <span class="ca">[Hook line — same as video opening]</span><br><br>
+            Saiko Se Pehle — EP 0X<br><br>
+            [2–3 lines: is episode mein kya hua]<br><br>
+            Agle episode mein: [cliffhanger]<br><br>
+            Follow karo taaki koi episode miss na ho.<br><br>
+            <span style="color:var(--text3);">#SaikoSePehle #FounderJourney #D2CIndia #MenSkincare #BuildInPublic #StartupIndia #GenZ #FounderLife #Saiko #IndianSkincare</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end main -->
+  </div><!-- end layout -->
+</div><!-- end app -->
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Edit</div>
+    <div class="modal-field">
+      <label class="modal-label">Content</label>
+      <textarea class="modal-textarea" id="modal-content" rows="6"></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-save" onclick="saveEdit()">Save Changes</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+const USERS = { rahul: 'saiko2025', mama: 'saiko2025' };
+
+const EPISODES = [
+  { num:'01', title:'Graduation ke baad kya? Hum bhi confuse the.', hook:'"2023 mein mera graduation hua. Mama ne MNC job chhhodi. Dono ke paas ek hi sawaal tha — aage kya?"', lesson:'Graduation → mama quits → restaurant franchise plan → MBA Chaiwala shortlist → Papa\'s quote changes everything', who:'both' },
+  { num:'02', title:'Market research — Indian men ke liye koi brand kyun nahi hai?', hook:'"Humne socha tha brand banana easy hoga. Pehle hi step pe pata chala — hame kuch pata hi nahi tha."', lesson:'Market data → oily skin + acne gap → no Indian brand → chemistry background aligns → decision locked', who:'rahul' },
+  { num:'03', title:'10 names, family poll, aur ek naam jo almost final tha', hook:'"Humara brand ka naam almost UNIGLO tha. Aaj hum batayenge kyun yeh galat hota."', lesson:'Name brainstorm → WhatsApp poll → UNIGLO selected → Kishan bhai logo → cliffhanger cut', who:'both' },
+  { num:'04', title:'Pehli badi galti — trademark pehle, logo baad mein ⚡', hook:'"Humne logo banvaya, family ko dikhaya, sab excited the — tab pata chala naam hi kisi aur ka hai."', lesson:'MOST SHAREABLE EP. Trademark search → UNIGLO taken → logo + time wasted → lesson: trademark first → restart', who:'rahul' },
+  { num:'05', title:'SAIKO — aur 24 ghante mein trademark mil gaya', hook:'"Is baar humne pehle trademark check kiya. 24 ghante mein mil gaya. Naam tha — Saiko."', lesson:'SAIKO = "the best" in Japanese → trademark first this time → 24hr approval → branding agency search begins', who:'both' },
+  { num:'06', title:'Formulator dhundhi — skincare scientist mili apne hi shehar mein', hook:'"Product banana hai toh formula chahiye. Formula ke liye scientist. Dhundhte dhundhte — woh mil gayi."', lesson:'Cosmetology course → teacher = skincare scientist → she joins → 2 products decided → formula work begins', who:'rahul' },
+  { num:'07', title:'Manufacturer dhundha — aur jo mila usne mushkil khadi ki', hook:'"Formula ready tha. Ab manufacturer chahiye tha. Yeh sabse mushkil chapter nikla."', lesson:'Small MOQ issue → Ahmedabad manufacturer → blame from Papa\'s contacts → extend, delay, stress → restart. Mama leads.', who:'mama' },
+  { num:'08', title:'Packaging, formula change, aur finally — LAUNCH DAY 🚀', hook:'"2 saal. Ek loss. Ek restart. Aaj Saiko launch ho raha hai."', lesson:'FINAL EP. Both founders. High energy. Product reveal. Link in bio. Launch day = this episode day.', who:'both' }
+];
+
+const WEEKS = [
+  { label:'WEEK 1', cls:'w1', theme:'Introduce yourselves — story shuru hoti hai',
+    days:[
+      { name:'Mon', type:'c', tag:'Collab', text:'EP 01 — Graduation, mama quits, Papa\'s quote' },
+      { name:'Tue', type:'r', tag:'Rahul', text:'Day in life as founder — 30 din before launch' },
+      { name:'Wed', type:'m', tag:'Mama', text:'Engineer se entrepreneur — 60 sec story' },
+      { name:'Thu', type:'r', tag:'Rahul', text:'Tip — "Yeh band karo, oily skin 50% kam hogi"' },
+      { name:'Fri', type:'m', tag:'Mama', text:'5 saal MNC mein — yeh seekha' },
+      { name:'Sat', type:'r', tag:'Rahul', text:'Motivation — Govt job mili thi. Maine nahi li.' },
+      { name:'Sun', type:'rest', tag:'Rest', text:'Batch shoot next week' }
+    ]
+  },
+  { label:'WEEK 2', cls:'w2', theme:'Build authority — science, mistakes, lessons',
+    days:[
+      { name:'Mon', type:'c', tag:'Collab', text:'EP 02 — Market research, Indian men skincare gap' },
+      { name:'Tue', type:'m', tag:'Mama', text:'D2C brand shuru karne se pehle yeh 3 cheezein' },
+      { name:'Wed', type:'r', tag:'Rahul', text:'Salicylic acid kya karta hai actually?' },
+      { name:'Thu', type:'c', tag:'Collab', text:'EP 03 — UNIGLO, family poll, Kishan bhai logo' },
+      { name:'Fri', type:'r', tag:'Rahul', text:'Day in life — sample testing karte hue' },
+      { name:'Sat', type:'m', tag:'Mama', text:'Trademark galti se seekha — ops perspective' },
+      { name:'Sun', type:'rest', tag:'Rest', text:'Edit + schedule' }
+    ]
+  },
+  { label:'WEEK 3', cls:'w3', theme:'Build excitement — product teaser, real stories',
+    days:[
+      { name:'Mon', type:'c', tag:'Collab', text:'EP 04 — Trademark mistake. Most shareable ep.' },
+      { name:'Tue', type:'r', tag:'Rahul', text:'SAIKO naam kaise mila — Japanese, 24hr trademark' },
+      { name:'Wed', type:'m', tag:'Mama', text:'Packaging vendor — yeh 3 cheezein zarur check karo' },
+      { name:'Thu', type:'c', tag:'Collab', text:'EP 05 — SAIKO final, branding agency search' },
+      { name:'Fri', type:'r', tag:'Rahul', text:'Imported formula kyun fail karta hai Indian skin pe' },
+      { name:'Sat', type:'m', tag:'Mama', text:'30 ke baad fresh start — yeh jaanta tha, yeh nahi' },
+      { name:'Sun', type:'rest', tag:'Rest', text:'Launch week ready karo' }
+    ]
+  },
+  { label:'WEEK 4', cls:'w4', theme:'Launch week — Saiko aa gaya 🚀',
+    days:[
+      { name:'Mon', type:'c', tag:'Collab', text:'EP 06 — Formulator ki kahani, product first glimpse' },
+      { name:'Tue', type:'r', tag:'Rahul', text:'Formula 2026 mein kyun badla — honest update' },
+      { name:'Wed', type:'c', tag:'Collab', text:'EP 07 — Manufacturer nightmare. Mama leads.' },
+      { name:'Thu', type:'m', tag:'Mama', text:'Packaging aayi — unboxing reaction (emotional)' },
+      { name:'Fri', type:'c', tag:'Collab', text:'EP 08 — 🚀 LAUNCH DAY. Both together. Product reveal.', launch:true },
+      { name:'Sat', type:'r', tag:'Rahul', text:'Pehle 24 ghante — honest post-launch update' },
+      { name:'Sun', type:'m', tag:'Mama', text:'Launch ops — orders, dispatch, behind scenes' }
+    ]
+  }
+];
+
+// ── STATE ─────────────────────────────────────────────
+let currentUser = null;
+let editTarget = null;
+
+// ── AUTH ──────────────────────────────────────────────
+function doLogin() {
+  const u = document.getElementById('username').value.trim().toLowerCase();
+  const p = document.getElementById('password').value;
+  const err = document.getElementById('login-error');
+  if (USERS[u] && USERS[u] === p) {
+    currentUser = u;
+    err.style.display = 'none';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('user-avatar').textContent = u === 'rahul' ? 'R' : 'M';
+    document.getElementById('user-name').textContent = u === 'rahul' ? 'Rahul' : 'Mama';
+    renderEpisodes();
+    renderCalendar();
+  } else {
+    err.style.display = 'block';
+  }
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
+}
+
+document.getElementById('password').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('username').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('password').focus(); });
+
+// ── NAVIGATION ────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('nav-' + id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── RENDER EPISODES ───────────────────────────────────
+function renderEpisodes() {
+  const container = document.getElementById('ep-list');
+  container.innerHTML = EPISODES.map(ep => {
+    const whoTag = ep.who === 'both'
+      ? `<span class="tag tag-purple">Both</span>`
+      : ep.who === 'rahul'
+        ? `<span class="tag tag-green">Rahul</span>`
+        : `<span class="tag tag-blue">Mama</span>`;
+    return `<div class="ep-card">
+      <div class="ep-num">EP<br>${ep.num}</div>
+      <div>
+        <div class="ep-title">${ep.title}</div>
+        <div class="ep-hook">${ep.hook}</div>
+        <div class="ep-lesson">${ep.lesson}</div>
+      </div>
+      <div class="ep-who">${whoTag}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER CALENDAR ───────────────────────────────────
+function renderCalendar() {
+  const container = document.getElementById('cal-container');
+  const typeMap = { r:'cp-r', m:'cp-m', c:'cp-c', rest:'cp-rest' };
+  container.innerHTML = WEEKS.map(w => `
+    <div class="week-block">
+      <div class="week-header-row">
+        <span class="week-pill ${w.cls}">${w.label}</span>
+        <span class="week-theme-text">${w.theme}</span>
+      </div>
+      <div class="cal-7">
+        ${w.days.map(d => `
+          <div class="cal-day${d.type==='rest'?' rest':''}${d.launch?' launch-day':''}">
+            <div class="cal-day-name">${d.name}</div>
+            <span class="cal-pill ${typeMap[d.type]}">${d.tag}</span>
+            <div class="cal-text">${d.text}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ── EDIT MODAL ────────────────────────────────────────
+function openEdit(targetId, title) {
+  editTarget = targetId;
+  document.getElementById('modal-title').textContent = 'Edit — ' + title;
+  document.getElementById('modal-content').value = document.getElementById(targetId).innerText;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  editTarget = null;
+}
+
+function saveEdit() {
+  if (!editTarget) return;
+  const val = document.getElementById('modal-content').value;
+  document.getElementById(editTarget).innerHTML = val.replace(/\n/g,'<br>');
+  closeModal();
+}
+
+document.getElementById('modal').addEventListener('click', e => { if(e.target === document.getElementById('modal')) closeModal(); });
+
+// ── AI GENERATOR ──────────────────────────────────────
+function quickGen(context, type, founder) {
+  showPage('ai');
+  document.getElementById('ai-context').value = context;
+  document.getElementById('content-type').value = type;
+  document.getElementById('founder-select').value = founder;
+  setTimeout(generateContent, 100);
+}
+
+async function generateContent() {
+  const type = document.getElementById('content-type').value;
+  const founder = document.getElementById('founder-select').value;
+  const context = document.getElementById('ai-context').value.trim();
+  if (!type || !context) { alert('Please select content type and describe the topic.'); return; }
+
+  const btn = document.getElementById('ai-btn');
+  const output = document.getElementById('ai-output');
+  const copyRow = document.getElementById('copy-row');
+  btn.disabled = true;
+  btn.innerHTML = `<span class="loading-dots"><span></span><span></span><span></span></span>`;
+  output.classList.remove('visible');
+  copyRow.style.display = 'none';
+
+  const founderProfiles = {
+    rahul: 'Rahul (BSc Chemistry, co-founder of Saiko men\'s skincare brand, target audience Gen Z 18–28, tone: raw Hinglish, real, no filter. Chemistry is his unfair advantage. His story: graduation 2023, govt job cracked but didn\'t join, papa passed away 25 days after marriage, built Saiko through grief)',
+    mama: 'Mama (Mechanical Engineer, co-founder of Saiko, worked in Andaman, Gujarat MNC in R&D + project coordination, target audience 25–35 young professionals, tone: calm, structured, experienced. His story: MNC to entrepreneur, went through divorce while building the brand, fresh start)',
+    both: 'Both Rahul and Mama together (Saiko brand collab content, shows two founders with different backgrounds building one brand together, emotional and authentic)'
+  };
+
+  const typeInstructions = {
+    'reel-script': 'Write a complete Hinglish reel script (45–90 seconds when spoken). Format: [HOOK - first 3 seconds], [MIDDLE - story/tip/lesson], [ENDING - call to action or cliffhanger]. Include visual direction cues in brackets. Make it feel real, not scripted.',
+    'episode-script': 'Write a complete Hinglish reel script for this series episode (60–90 seconds). Include: powerful hook in first 3 sec, story beats with visual cues in brackets, one actionable lesson, cliffhanger ending that teases next episode.',
+    'caption': 'Write an Instagram caption in Hinglish. Format: hook line, episode/content label, 2–3 lines about what happened, cliffhanger for next, CTA to follow, and 10–12 relevant hashtags. Keep it natural, not corporate.',
+    'content-ideas': 'Generate 10 specific, actionable content ideas with: title, hook line, and which platform (Reel/YT Short). Make each idea unique and tied to the founder\'s actual story and expertise.',
+    'hook': 'Write 5 different opening hook lines (first 3 seconds of a reel). Each should immediately grab attention — use a surprising fact, a mistake reveal, a bold claim, or a relatable frustration. No generic openers.',
+    'youtube-desc': 'Write a YouTube video description in Hinglish (150–200 words). Include: what the video is about, key takeaway, timestamps (placeholder), social links placeholder, and relevant keywords for SEO.'
+  };
+
+  const systemPrompt = `You are a content strategist for Saiko, an Indian D2C men's skincare brand for oily and acne-prone skin targeting 15–35 age group. The brand tagline is "Skin that shows up. Just like you." Brand positioning: self-improvement, not cosmetics. Confident defiance tone. The two founders are building in public and sharing their real journey. Always write in authentic Hinglish (mix of Hindi and English) — conversational, real, no corporate polish. Never use emojis in scripts. Always prioritize authenticity over perfection.`;
+
+  const userPrompt = `Founder: ${founderProfiles[founder]}
+
+Content type: ${typeInstructions[type]}
+
+Topic/Context: ${context}
+
+Generate the content now. Be specific to Saiko's story and the founder's actual background. Make it feel like something real people would actually say, not a polished brand script.`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.map(c => c.text || '').join('') || 'Error generating content. Please try again.';
+    output.textContent = text;
+    output.classList.add('visible');
+    copyRow.style.display = 'block';
+  } catch (e) {
+    output.textContent = 'Network error. Please check your connection and try again.';
+    output.classList.add('visible');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Generate ✨';
+}
+
+function copyOutput() {
+  const text = document.getElementById('ai-output').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy to clipboard', 2000);
+  });
+}
+</script>
+</body>
+</html>
